@@ -1,6 +1,15 @@
 const express = require('express')
 
 const app= express();
+const mongoose = require('mongoose');
+
+mongoose.connect('mongodb+srv://jimbob:<PASSWORD>@cluster0-pme76.mongodb.net/test?retryWrites=true&w=majority',
+  { useNewUrlParser: true,
+    useUnifiedTopology: true })
+  .then(() => console.log('Connexion à MongoDB réussie !'))
+  .catch(() => console.log('Connexion à MongoDB échouée !'));
+
+
 
 app.use((req,res,next) =>{
     console.log("Request received!")
@@ -21,8 +30,18 @@ app.use((req,res,next) =>{
 // app.use((req,res) =>{
 //     console.log('Response sent successfully')
 // })
+
+//cors configuration
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    next();
+  });
  
-app.use('/api/stuff', (req, res, next) => {
+  app.use(bodyParse.json())
+
+app.get('/api/stuff', (req, res, next) => {
     const stuff = [
       {
         _id: 'oeihfzeoi',
@@ -42,6 +61,18 @@ app.use('/api/stuff', (req, res, next) => {
       },
     ];
     res.status(200).json(stuff);
+  });
+  
+  //to extract the json body coming from the frontend post request
+  app.use(express.json());
+
+  //then add post middleware
+  app.post('/api/stuff', (req, res, next) => {
+    console.log(req.body);
+    res.status(201).json({
+      message: 'Objet créé !'
+     
+    });
   });
 
 
